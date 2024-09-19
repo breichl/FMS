@@ -31,25 +31,24 @@
    if (.not.associated(Current_domain)) call mpp_error &
         (FATAL,'set_domain not called')
 
-   if (present(end)) end = .false. 
+   if (present(end)) end = .false.
 
    if (do_read()) read (unit,end=10) gdata
    if (.not.read_all_pe) then
          ! did not read on all PEs need to broadcast data
       len = size(gdata,1)*size(gdata,2)*size(gdata,3)*size(gdata,4)
 !           call mpp_transmit ( gdata, len, ALL_PES, &
-!                               gdata, len, 0        )       
+!                               gdata, len, 0        )
       call mpp_broadcast ( gdata, len, mpp_root_pe() )
    endif
 ! return data for compute domain
-   if(.not. no_halo .or. read_data_bug) then
+   if(.not. no_halo) then
 ! data defined on data domain
       data(is:ie,js:je,:,:) = gdata(is:ie,js:je,:,:)
    else
 ! data defined on compute domain
       data(:,:,:,:) = gdata(is:ie,js:je,:,:)
    endif
-   return  
+   return
 
 10 call read_eof (end)
-
